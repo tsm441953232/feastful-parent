@@ -21,3 +21,7 @@
 ##3.spring-data-jpa
 ##4.redis
 ##5.rabbit-mq
+
+#port
+eureka.server.port=8081,8082
+front-control.server.port=8181,8182
