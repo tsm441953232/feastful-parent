@@ -21,4 +21,3 @@ CREATE TABLE fc_account (
   PRIMARY KEY (id),
   UNIQUE KEY uniq_key_1 (phone_num)
 ) COMMENT='用户表';
-
