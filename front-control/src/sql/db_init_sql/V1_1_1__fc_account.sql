@@ -17,7 +17,18 @@ CREATE TABLE fc_account (
   date_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   updated_by varchar(32) COMMENT '更新人',
   date_update datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  del_flag tinyint(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  del_flag tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
   PRIMARY KEY (id),
   UNIQUE KEY uniq_key_1 (phone_num)
 ) COMMENT='用户表';
+
+CREATE TABLE `fc_sys_param` (
+  `param_index` varchar(4) NOT NULL COMMENT '参数索引',
+  `param_value` varchar(200)  COMMENT '参数值',
+  `description` varchar(200)  COMMENT '参数描述',
+  `modify_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改日期',
+  `modifier_id` varchar(32)  COMMENT '操作者ID',
+  PRIMARY KEY (`param_index`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统参数表';
+
+
