@@ -23,10 +23,7 @@ public enum BusinessErrorEnum implements CommonError {
     SMS_CODE_ERROR("30002", "短信验证码错误"),
     SMS_CODE_EXPIRE("30003", "短信验证码已失效，请重新获取"),
     IMG_CODE_EXPIRE("30004", "图片验证码已过期，请重新获取"),
-    IMG_CODE_ERROR("30005", "图片验证码错误"),
-
-    //融资
-    FINANCING_PRICE_ERROR("40001", "融资定价管理异常");
+    IMG_CODE_ERROR("30005", "图片验证码错误");
 
 
     private String errCode;
