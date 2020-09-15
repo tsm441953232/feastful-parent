@@ -1,0 +1,24 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch develop
+# Changes to be committed:
+#	modified:   apply-system/build.gradle
+#	new file:   apply-system/src/main/java/com/tsm/feastful/applysystem/configuration/HttpConfiguration.java
+#	new file:   apply-system/src/main/java/com/tsm/feastful/applysystem/controller/HealthController.java
+#	new file:   apply-system/src/main/java/com/tsm/feastful/applysystem/swagger/Swagger2.java
+#	new file:   front-control/src/main/java/com/tsm/feastful/frontcontrol/configuration/HttpConfiguration.java
+#	new file:   front-control/src/main/java/com/tsm/feastful/frontcontrol/controller/HealthController.java
+#	modified:   rms-engine/build.gradle
+#	new file:   rms-engine/src/main/java/com/tsm/feastful/rmsengine/configuration/HttpConfiguration.java
+#	new file:   rms-engine/src/main/java/com/tsm/feastful/rmsengine/controller/HealthController.java
+#	new file:   rms-engine/src/main/java/com/tsm/feastful/rmsengine/swagger/Swagger2.java
+#	modified:   rms-main/build.gradle
+#	modified:   rms-main/gradle/wrapper/gradle-wrapper.properties
+#	new file:   rms-main/src/main/java/com/tsm/feastful/rmsmain/configuration/HttpConfiguration.java
+#	new file:   rms-main/src/main/java/com/tsm/feastful/rmsmain/controller/HealthController.java
+#	new file:   rms-main/src/main/java/com/tsm/feastful/rmsmain/swagger/Swagger2.java
+#
+import swagger
+

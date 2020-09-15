@@ -1,5 +1,6 @@
 package com.tsm.feastful.frontcontrol.service.impl;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.tsm.feastful.frontcontrol.feign.ApplySystemFeign;
 import com.tsm.feastful.frontcontrol.service.HealthService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class HealthServiceImpl implements HealthService {
 
 
     @Override
+    @HystrixCommand(fallbackMethod = "hiError")
     public String getMethodToAps() {
         String returnMessage = restTemplate.getForObject("http://APPLY-SYSTEM/hello",String.class);
         return returnMessage;
@@ -28,5 +30,9 @@ public class HealthServiceImpl implements HealthService {
     @Override
     public String getFeignMethodToAps() {
         return applySystemFeign.getMethodToAps();
+    }
+
+    public String hiError(){
+        return "hi,get to aps error";
     }
 }
