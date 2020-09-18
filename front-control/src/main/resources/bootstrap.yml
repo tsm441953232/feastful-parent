@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: ff-business
+  profiles:
+    active: local
+  datasource:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.jdbc.Driver
+      timeBetweenEvictionRunsMillis: 60000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+  http:
+    multipart:
+      enabled: true
+      max-file-size: 1024Mb
+      max-request-size: 1024Mb
+
+logging:
+  level:
+    com.haier.bf.business: INFO
+
+server:
+  port: 9200
+
+---
+# local profile
+spring:
+  profiles: local
+  cloud:
+    config:  # cloud config
+      enabled: false
+
+---
+# dev profile
+spring:
+  profiles: dev
+  cloud:
+    config:  # cloud config
+      enabled: false
+
+---
+# qa profile
+spring:
+  profiles: qa
+  cloud:
+    config:  # cloud config
+      enabled: true
+      uri: http://172.16.252.86:9601/
+      profile: ${spring.profiles.active}  #config server 获取的配置文件的 {profile}
+      label: master    # git 仓库的分支
+
+---
+# stage profile
+spring:
+  profiles: stage
+  cloud:
+    config:  # cloud config
+      enabled: true
+      uri: http://172.16.252.86:9601/
+      profile: ${spring.profiles.active}  #config server 获取的配置文件的 {profile}
+      label: master    # git 仓库的分支
+
+---
+# prod profile
+spring:
+  profiles: prod
+  cloud:
+    config:  # cloud config
+      enabled: true
+      uri: http://172.16.10.250:9601/
+      profile: ${spring.profiles.active}  #config server 获取的配置文件的 {profile}
+      label: master    # git 仓库的分支
