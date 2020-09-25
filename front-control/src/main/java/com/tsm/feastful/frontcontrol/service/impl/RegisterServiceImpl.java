@@ -7,12 +7,14 @@ import com.tsm.feastful.frontcontrol.model.register.RegisterRequest;
 import com.tsm.feastful.frontcontrol.model.register.RegisterResponse;
 import com.tsm.feastful.frontcontrol.repository.FcAccountRepo;
 import com.tsm.feastful.frontcontrol.repository.FcSysParamRepo;
+import com.tsm.feastful.frontcontrol.sequence.SequenceClient;
 import com.tsm.feastful.frontcontrol.service.RegisterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import static com.tsm.feastful.frontcontrol.constants.CommonConstants.*;
 
@@ -23,6 +25,8 @@ public class RegisterServiceImpl implements RegisterService {
     private FcAccountRepo fcAccountRepo;
     @Autowired
     private FcSysParamRepo fcSysParamRepo;
+    @Autowired
+    private SequenceClient sequenceClient;
 
     @Override
     public ResponseDto<RegisterResponse> userRegister(RegisterRequest registerRequest) throws Exception {
@@ -46,4 +50,5 @@ public class RegisterServiceImpl implements RegisterService {
         fcSysParamRepo.saveAndFlush(fcSysParam);
         return currentCustomerId.toString();
     }
+
 }

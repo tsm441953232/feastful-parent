@@ -29,3 +29,4 @@ apply-system.server.port=8281,8282
 rms-main.server.port=8381,8382
 rms-engine.server.port=8481,8482
 feastful-zuul.server.port=8581,8582
+config-center.server.port=8681,8682

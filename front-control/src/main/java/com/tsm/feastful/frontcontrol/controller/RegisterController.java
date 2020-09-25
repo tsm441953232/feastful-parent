@@ -4,6 +4,7 @@ import com.tsm.feastful.frontcontrol.common.ResponseDto;
 import com.tsm.feastful.frontcontrol.model.register.RegisterRequest;
 import com.tsm.feastful.frontcontrol.model.register.RegisterResponse;
 import com.tsm.feastful.frontcontrol.service.RegisterService;
+import com.tsm.feastful.frontcontrol.utils.BeanSerializeUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class RegisterController {
     @PostMapping("/userRegister")
     @ApiOperation("客户注册接口")
     public ResponseDto<RegisterResponse> userRegister(@Valid @RequestBody RegisterRequest registerRequest) throws Exception {
+        log.info("接收到手机号注册接口请求,request:{}", BeanSerializeUtils.serializeWithNullValueNode(registerRequest));
         return registerService.userRegister(registerRequest);
     }
 
