@@ -1,20 +1,28 @@
 package com.tsm.redpacket.service.impl;
 
 import com.tsm.redpacket.entity.TRedPacket;
+import com.tsm.redpacket.entity.TUserRedPacket;
+import com.tsm.redpacket.model.redPacket.GrabPacketRequest;
 import com.tsm.redpacket.model.redPacket.SetRedPacketRequest;
 import com.tsm.redpacket.repository.TRedPacketRepository;
+import com.tsm.redpacket.repository.TUserRedPacketRepository;
 import com.tsm.redpacket.service.RedPacketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+
+import static com.tsm.redpacket.constants.SystemConstants.*;
 
 @Service
 @Slf4j
 public class RedPacketServiceImpl implements RedPacketService {
     @Autowired
     private TRedPacketRepository tRedPacketRepository;
+    @Autowired
+    private TUserRedPacketRepository tUserRedPacketRepository;
 
     @Override
     public void setRedPacket(SetRedPacketRequest setRedPacketRequest) {
@@ -32,6 +40,46 @@ public class RedPacketServiceImpl implements RedPacketService {
         tRedPacket.setVersion(0);
         tRedPacketRepository.save(tRedPacket);
     }
+
+    @Override
+    @Transactional
+    public int grabRedPacket(GrabPacketRequest grabPacketRequest) {
+        //获取红包信息
+        TRedPacket tRedPacket = tRedPacketRepository.getOne(grabPacketRequest.getRedPacketId());
+        // 当前小红包库存大于0
+        if (tRedPacket.getStock() > 0) {
+            tRedPacketRepository.decreaseRedPacket(grabPacketRequest.getRedPacketId());
+            // 生成抢红包信息
+            TUserRedPacket userRedPacket = new TUserRedPacket();
+            userRedPacket.setRedPacketId(grabPacketRequest.getRedPacketId());
+            userRedPacket.setUserId(grabPacketRequest.getUserId());
+            userRedPacket.setAmount(tRedPacket.getUnitAmount());
+            userRedPacket.setNote("抢红包 " + grabPacketRequest.getRedPacketId());
+            // 插入抢红包信息
+            tUserRedPacketRepository.save(userRedPacket);
+            return SUCCESS;
+        }
+        // 失败返回
+        return FAILURE;
+    }
+
+    @Override
+    public int grabRedPacketForUpdate(GrabPacketRequest grabPacketRequest) {
+        return FAILURE;
+    }
+
+    @Override
+    public int grabRedPacketForRedis(GrabPacketRequest grabPacketRequest) {
+        return FAILURE;
+    }
+
+    @Override
+    public int grabRedPacketForRedisRetry(GrabPacketRequest grabPacketRequest) {
+        return FAILURE;
+    }
+
+
+
 
     private Integer divideRedPacketStock(BigDecimal amount , Integer total){
         BigDecimal divided = new BigDecimal(total);

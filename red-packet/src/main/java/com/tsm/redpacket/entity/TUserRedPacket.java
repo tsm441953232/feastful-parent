@@ -13,7 +13,8 @@ import java.sql.Timestamp;
 public class TUserRedPacket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
+    private Integer redPacketId;//客户号
     private Integer userId;//客户号
     private BigDecimal amount;
     @CreationTimestamp
