@@ -21,6 +21,7 @@ public class TRedPacket {
     private Integer total;
     private BigDecimal unitAmount;
     private Integer stock;
+    @Version
     private Integer version;
     private String note;//备注
 

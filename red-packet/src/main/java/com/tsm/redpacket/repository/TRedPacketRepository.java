@@ -18,7 +18,7 @@ public interface TRedPacketRepository extends JpaRepository<TRedPacket, Integer>
     @Modifying
     @Query(nativeQuery = true, value = "update T_RED_PACKET set stock = stock - 1 , version = version + 1 " +
             "where id =:id and version = :version")
-    int decreaseRedPacketByOptimisticLock(@Param("id") Integer id , @Param("version") Integer version);
+    int decreaseRedPacketByPessimisticLock(@Param("id") Integer id , @Param("version") Integer version);
 
     /**
      * JPA行级锁 请只对主键加锁，否则为表级锁 极大程度影响性能
@@ -30,9 +30,12 @@ public interface TRedPacketRepository extends JpaRepository<TRedPacket, Integer>
             "sendDate, total, unitAmount," +
             "stock , version ,note " +
             "from  T_RED_PACKET  where id = :id")
-    TRedPacket selectRedPacketByIdForUpdate(@Param("id") Integer id);
+    TRedPacket decreaseRedPacketByPessimisticLock(@Param("id") Integer id);
 
 
     /*@Query(nativeQuery = true , value = "update T_RED_PACKET set stock = stock - 1 where id = :id")
-    int decreaseRedPacket(@Param("id") Integer id);*/
+    int decreaseRedPacketByPessimisticLock(@Param("id") Integer id);*/
+
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    TRedPacket getById(@Param("id") Integer id);
 }

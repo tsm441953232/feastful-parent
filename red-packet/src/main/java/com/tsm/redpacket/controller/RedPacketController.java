@@ -69,11 +69,28 @@ public class RedPacketController {
         grabPacketRequest.setRedPacketId(redPacketId);
         grabPacketRequest.setUserId(userId);
         log.info("接收到抢红包-乐观锁的请求, 请求体为 setRedPacketRequest = {}",grabPacketRequest.toString());
-        int result = redPacketService.grabRedPacketPessimisticLock(grabPacketRequest);
+        int result = redPacketService.grabRedPacketOptimisticLock(grabPacketRequest);
         Map<String, Object> retMap = new HashMap<String, Object>();
         boolean flag = result == 0;
         retMap.put("success", flag);
         retMap.put("message", flag ? "抢红包成功" : "抢红包失败");
         return ResponseDto.ok(retMap);
     }
+
+    @ApiOperation("抢红包-乐观锁-多次重试")
+    @GetMapping("grabRedPacketOptimisticLockRetry")
+    ResponseDto<Map<String, Object>> grabRedPacketOptimisticLockRetry(@RequestParam(value = "redPacketId") Integer redPacketId ,
+                                                                 @RequestParam(value = "userId") Integer userId){
+        GrabPacketRequest grabPacketRequest = new GrabPacketRequest();
+        grabPacketRequest.setRedPacketId(redPacketId);
+        grabPacketRequest.setUserId(userId);
+        log.info("接收到抢红包-乐观锁-可重入的请求, 请求体为 setRedPacketRequest = {}",grabPacketRequest.toString());
+        int result = redPacketService.grabRedPacketOptimisticLockRetry(grabPacketRequest);
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        boolean flag = result == 0;
+        retMap.put("success", flag);
+        retMap.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return ResponseDto.ok(retMap);
+    }
+
 }

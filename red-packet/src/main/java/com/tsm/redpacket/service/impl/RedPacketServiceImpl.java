@@ -9,12 +9,14 @@ import com.tsm.redpacket.repository.TUserRedPacketRepository;
 import com.tsm.redpacket.service.RedPacketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
-import static com.tsm.redpacket.constants.SystemConstants.*;
+import static com.tsm.redpacket.constants.SystemConstants.FAILURE;
+import static com.tsm.redpacket.constants.SystemConstants.SUCCESS;
 
 @Service
 @Slf4j
@@ -35,8 +37,8 @@ public class RedPacketServiceImpl implements RedPacketService {
         /*tRedPacket.setStock((setRedPacketRequest.getAmount(),setRedPacketRequest.getTotal()) -> {
             return divideRedPacketStock(setRedPacketRequest.getAmount(),setRedPacketRequest.getTotal());
         });*/
-        tRedPacket.setStock(divideRedPacketStock(tRedPacket.getAmount(),tRedPacket.getTotal()));
-        tRedPacket.setUnitAmount(divideRedPacketUnitAmount(tRedPacket.getAmount(),tRedPacket.getStock()));
+        tRedPacket.setStock(divideRedPacketStock(tRedPacket.getAmount(), tRedPacket.getTotal()));
+        tRedPacket.setUnitAmount(divideRedPacketUnitAmount(tRedPacket.getAmount(), tRedPacket.getStock()));
         tRedPacket.setVersion(0);
         tRedPacketRepository.save(tRedPacket);
     }
@@ -67,7 +69,7 @@ public class RedPacketServiceImpl implements RedPacketService {
     @Transactional
     public int grabRedPacketPessimisticLock(GrabPacketRequest grabPacketRequest) {
         //获取红包信息
-        TRedPacket tRedPacket = tRedPacketRepository.selectRedPacketByIdForUpdate(grabPacketRequest.getRedPacketId());
+        TRedPacket tRedPacket = tRedPacketRepository.getById(grabPacketRequest.getRedPacketId());
         // 当前小红包库存大于0
         if (tRedPacket.getStock() > 0) {
             tRedPacketRepository.decreaseRedPacket(grabPacketRequest.getRedPacketId());
@@ -91,9 +93,16 @@ public class RedPacketServiceImpl implements RedPacketService {
         TRedPacket tRedPacket = tRedPacketRepository.getOne(grabPacketRequest.getRedPacketId());
         // 当前小红包库存大于0
         if (tRedPacket.getStock() > 0) {
-            int rows = tRedPacketRepository.decreaseRedPacketByOptimisticLock(tRedPacket.getId(),tRedPacket.getVersion());
-            if(rows == 0){
+            /*int rows = tRedPacketRepository.decreaseRedPacketByPessimisticLock(tRedPacket.getId(), tRedPacket.getVersion());
+            if (rows == 0) {
                 // 失败返回
+                return FAILURE;
+            }*/
+            tRedPacket.setStock(tRedPacket.getStock()-1);
+            try {
+                tRedPacket = tRedPacketRepository.save(tRedPacket);
+            }catch (ObjectOptimisticLockingFailureException e){
+                log.info("抢红包失败,grabPacketRequest = {}" ,grabPacketRequest);
                 return FAILURE;
             }
             // 生成抢红包信息
@@ -112,16 +121,45 @@ public class RedPacketServiceImpl implements RedPacketService {
 
     @Override
     public int grabRedPacketOptimisticLockRetry(GrabPacketRequest grabPacketRequest) {
-        return 0;
+        for (int i = 0; i < 3; i++) {
+            //获取红包信息
+            TRedPacket tRedPacket = tRedPacketRepository.getOne(grabPacketRequest.getRedPacketId());
+            // 当前小红包库存大于0
+            if (tRedPacket.getStock() > 0) {
+                /*int rows = tRedPacketRepository.decreaseRedPacketByPessimisticLock(tRedPacket.getId(), tRedPacket.getVersion());
+                if (rows == 0) {
+                    // 失败返回
+                    continue;
+                }*/
+                tRedPacket.setStock(tRedPacket.getStock()-1);
+                try {
+                    tRedPacket = tRedPacketRepository.save(tRedPacket);
+                }catch (ObjectOptimisticLockingFailureException e){
+                    log.info("抢红包失败,grabPacketRequest = {}" ,grabPacketRequest);
+                    return FAILURE;
+                }
+
+                // 生成抢红包信息
+                TUserRedPacket userRedPacket = new TUserRedPacket();
+                userRedPacket.setRedPacketId(grabPacketRequest.getRedPacketId());
+                userRedPacket.setUserId(grabPacketRequest.getUserId());
+                userRedPacket.setAmount(tRedPacket.getUnitAmount());
+                userRedPacket.setNote("抢红包 " + grabPacketRequest.getRedPacketId());
+                // 插入抢红包信息
+                tUserRedPacketRepository.save(userRedPacket);
+                return SUCCESS;
+            }
+        }
+        return FAILURE;
     }
 
 
-    private Integer divideRedPacketStock(BigDecimal amount , Integer total){
+    private Integer divideRedPacketStock(BigDecimal amount, Integer total) {
         BigDecimal divided = new BigDecimal(total);
         return amount.divide(divided).intValue();
     }
 
-    private BigDecimal divideRedPacketUnitAmount(BigDecimal amount , Integer stock){
+    private BigDecimal divideRedPacketUnitAmount(BigDecimal amount, Integer stock) {
         BigDecimal divided = new BigDecimal(stock);
         return amount.divide(divided);
     }
