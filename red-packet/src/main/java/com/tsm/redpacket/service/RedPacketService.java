@@ -10,11 +10,11 @@ public interface RedPacketService {
     int grabRedPacket(GrabPacketRequest grabPacketRequest);
 
     //悲观锁
-    int grabRedPacketForUpdate(GrabPacketRequest grabPacketRequest);
+    int grabRedPacketPessimisticLock(GrabPacketRequest grabPacketRequest);
 
     //乐观锁-无重入机制
-    int grabRedPacketForRedis(GrabPacketRequest grabPacketRequest);
+    int grabRedPacketOptimisticLock(GrabPacketRequest grabPacketRequest);
 
     //乐观锁-有重入机制
-    int grabRedPacketForRedisRetry(GrabPacketRequest grabPacketRequest);
+    int grabRedPacketOptimisticLockRetry(GrabPacketRequest grabPacketRequest);
 }

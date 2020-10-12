@@ -8,7 +8,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -39,6 +38,38 @@ public class RedPacketController {
         grabPacketRequest.setUserId(userId);
         log.info("接收到抢红包-不加锁的请求, 请求体为 setRedPacketRequest = {}",grabPacketRequest.toString());
         int result = redPacketService.grabRedPacket(grabPacketRequest);
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        boolean flag = result == 0;
+        retMap.put("success", flag);
+        retMap.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return ResponseDto.ok(retMap);
+    }
+
+    @ApiOperation("抢红包-悲观锁")
+    @GetMapping("grabRedPacketPessimisticLock")
+    ResponseDto<Map<String, Object>> grabRedPacketPessimisticLock(@RequestParam(value = "redPacketId") Integer redPacketId ,
+                                                   @RequestParam(value = "userId") Integer userId){
+        GrabPacketRequest grabPacketRequest = new GrabPacketRequest();
+        grabPacketRequest.setRedPacketId(redPacketId);
+        grabPacketRequest.setUserId(userId);
+        log.info("接收到抢红包-悲观锁的请求, 请求体为 setRedPacketRequest = {}",grabPacketRequest.toString());
+        int result = redPacketService.grabRedPacketPessimisticLock(grabPacketRequest);
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        boolean flag = result == 0;
+        retMap.put("success", flag);
+        retMap.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return ResponseDto.ok(retMap);
+    }
+
+    @ApiOperation("抢红包-乐观锁")
+    @GetMapping("grabRedPacketOptimisticLock")
+    ResponseDto<Map<String, Object>> grabRedPacketOptimisticLock(@RequestParam(value = "redPacketId") Integer redPacketId ,
+                                                            @RequestParam(value = "userId") Integer userId){
+        GrabPacketRequest grabPacketRequest = new GrabPacketRequest();
+        grabPacketRequest.setRedPacketId(redPacketId);
+        grabPacketRequest.setUserId(userId);
+        log.info("接收到抢红包-乐观锁的请求, 请求体为 setRedPacketRequest = {}",grabPacketRequest.toString());
+        int result = redPacketService.grabRedPacketPessimisticLock(grabPacketRequest);
         Map<String, Object> retMap = new HashMap<String, Object>();
         boolean flag = result == 0;
         retMap.put("success", flag);

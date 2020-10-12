@@ -64,21 +64,56 @@ public class RedPacketServiceImpl implements RedPacketService {
     }
 
     @Override
-    public int grabRedPacketForUpdate(GrabPacketRequest grabPacketRequest) {
+    @Transactional
+    public int grabRedPacketPessimisticLock(GrabPacketRequest grabPacketRequest) {
+        //获取红包信息
+        TRedPacket tRedPacket = tRedPacketRepository.selectRedPacketByIdForUpdate(grabPacketRequest.getRedPacketId());
+        // 当前小红包库存大于0
+        if (tRedPacket.getStock() > 0) {
+            tRedPacketRepository.decreaseRedPacket(grabPacketRequest.getRedPacketId());
+            // 生成抢红包信息
+            TUserRedPacket userRedPacket = new TUserRedPacket();
+            userRedPacket.setRedPacketId(grabPacketRequest.getRedPacketId());
+            userRedPacket.setUserId(grabPacketRequest.getUserId());
+            userRedPacket.setAmount(tRedPacket.getUnitAmount());
+            userRedPacket.setNote("抢红包 " + grabPacketRequest.getRedPacketId());
+            // 插入抢红包信息
+            tUserRedPacketRepository.save(userRedPacket);
+            return SUCCESS;
+        }
+        // 失败返回
         return FAILURE;
     }
 
     @Override
-    public int grabRedPacketForRedis(GrabPacketRequest grabPacketRequest) {
+    public int grabRedPacketOptimisticLock(GrabPacketRequest grabPacketRequest) {
+        //获取红包信息
+        TRedPacket tRedPacket = tRedPacketRepository.getOne(grabPacketRequest.getRedPacketId());
+        // 当前小红包库存大于0
+        if (tRedPacket.getStock() > 0) {
+            int rows = tRedPacketRepository.decreaseRedPacketByOptimisticLock(tRedPacket.getId(),tRedPacket.getVersion());
+            if(rows == 0){
+                // 失败返回
+                return FAILURE;
+            }
+            // 生成抢红包信息
+            TUserRedPacket userRedPacket = new TUserRedPacket();
+            userRedPacket.setRedPacketId(grabPacketRequest.getRedPacketId());
+            userRedPacket.setUserId(grabPacketRequest.getUserId());
+            userRedPacket.setAmount(tRedPacket.getUnitAmount());
+            userRedPacket.setNote("抢红包 " + grabPacketRequest.getRedPacketId());
+            // 插入抢红包信息
+            tUserRedPacketRepository.save(userRedPacket);
+            return SUCCESS;
+        }
+
         return FAILURE;
     }
 
     @Override
-    public int grabRedPacketForRedisRetry(GrabPacketRequest grabPacketRequest) {
-        return FAILURE;
+    public int grabRedPacketOptimisticLockRetry(GrabPacketRequest grabPacketRequest) {
+        return 0;
     }
-
-
 
 
     private Integer divideRedPacketStock(BigDecimal amount , Integer total){
