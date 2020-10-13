@@ -17,4 +17,7 @@ public interface RedPacketService {
 
     //乐观锁-有重入机制 避免抢红包失败无法抢到的问题 每次请求最多重试三次
     int grabRedPacketOptimisticLockRetry(GrabPacketRequest grabPacketRequest);
+
+    //redis-script脚本进行抢红包操作
+    int grabRedPacketRedisScript(GrabPacketRequest grabPacketRequest);
 }

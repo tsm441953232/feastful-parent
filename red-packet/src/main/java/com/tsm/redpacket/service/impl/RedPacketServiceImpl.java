@@ -9,12 +9,20 @@ import com.tsm.redpacket.repository.TUserRedPacketRepository;
 import com.tsm.redpacket.service.RedPacketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import static com.tsm.redpacket.constants.RedisLuaScriptConstants.redPacketDecreaseLuaScript;
 import static com.tsm.redpacket.constants.SystemConstants.FAILURE;
 import static com.tsm.redpacket.constants.SystemConstants.SUCCESS;
 
@@ -25,6 +33,10 @@ public class RedPacketServiceImpl implements RedPacketService {
     private TRedPacketRepository tRedPacketRepository;
     @Autowired
     private TUserRedPacketRepository tUserRedPacketRepository;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    private String redisLuaSha = null;
 
     @Override
     public void setRedPacket(SetRedPacketRequest setRedPacketRequest) {
@@ -150,6 +162,21 @@ public class RedPacketServiceImpl implements RedPacketService {
                 return SUCCESS;
             }
         }
+        return FAILURE;
+    }
+
+    @Override
+    public int grabRedPacketRedisScript(GrabPacketRequest grabPacketRequest) {
+        log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}",grabPacketRequest.toString());
+        // 当前抢红包用户和日期信息
+        String args = grabPacketRequest.getUserId() + "_" + System.currentTimeMillis();
+        Long result = null;
+        RedisScript<Integer> redisScript = new DefaultRedisScript<Integer>(redPacketDecreaseLuaScript,Integer.TYPE);
+        List<String> keys = new ArrayList<String>();
+        keys.add()
+        String execute = stringRedisTemplate.execute(redisScript, keys, null);
+
+
         return FAILURE;
     }
 
