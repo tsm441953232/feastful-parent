@@ -169,14 +169,19 @@ public class RedPacketServiceImpl implements RedPacketService {
     public int grabRedPacketRedisScript(GrabPacketRequest grabPacketRequest) {
         log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}",grabPacketRequest.toString());
         // 当前抢红包用户和日期信息
-        String args = grabPacketRequest.getUserId() + "_" + System.currentTimeMillis();
-        Long result = null;
+        String userInfo = grabPacketRequest.getUserId() + "_" + System.currentTimeMillis();
         RedisScript<Integer> redisScript = new DefaultRedisScript<Integer>(redPacketDecreaseLuaScript,Integer.TYPE);
         List<String> keys = new ArrayList<String>();
-        keys.add()
-        String execute = stringRedisTemplate.execute(redisScript, keys, null);
+        keys.add(grabPacketRequest.getRedPacketId().toString());
 
+        List<String> args = new ArrayList<String>();
+        args.add(userInfo);
 
+        Integer execute = stringRedisTemplate.execute(redisScript, keys, args);
+        if(execute == 2){
+            //TODO 要保存数据到数据库
+            return SUCCESS;
+        }
         return FAILURE;
     }
 
