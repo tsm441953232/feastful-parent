@@ -52,12 +52,12 @@ public class RedPacketServiceImpl implements RedPacketService {
         /*tRedPacket.setStock((setRedPacketRequest.getAmount(),setRedPacketRequest.getTotal()) -> {
             return divideRedPacketStock(setRedPacketRequest.getAmount(),setRedPacketRequest.getTotal());
         });*/
-        tRedPacket.setStock(divideRedPacketStock(tRedPacket.getAmount(), tRedPacket.getTotal()));
+        tRedPacket.setStock(tRedPacket.getTotal());
         tRedPacket.setUnitAmount(divideRedPacketUnitAmount(tRedPacket.getAmount(), tRedPacket.getStock()));
         tRedPacket.setVersion(0);
         tRedPacketRepository.save(tRedPacket);
 
-        stringRedisTemplate.opsForHash().put(redPacketPrefix+setRedPacketRequest.getUserId(),"stock",setRedPacketRequest.getTotal());
+        stringRedisTemplate.opsForHash().put(redPacketPrefix+setRedPacketRequest.getUserId(),"stock",setRedPacketRequest.getTotal().toString());
     }
 
     @Override
@@ -175,19 +175,20 @@ public class RedPacketServiceImpl implements RedPacketService {
         log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}", grabPacketRequest.toString());
         // 当前抢红包用户和日期信息
         String userInfo = grabPacketRequest.getUserId() + "_" + System.currentTimeMillis();
-        RedisScript<Integer> redisScript = new DefaultRedisScript<Integer>(redPacketDecreaseLuaScript, Integer.TYPE);
+        RedisScript<Long> redisScript = new DefaultRedisScript<Long>(redPacketDecreaseLuaScript, Long.class);
         List<String> keys = new ArrayList<String>();
         keys.add(grabPacketRequest.getRedPacketId().toString());
 
         List<String> args = new ArrayList<String>();
         args.add(userInfo);
 
-        Integer execute = stringRedisTemplate.execute(redisScript, keys, args);
-        if (execute == 1) {
+        Long execute = stringRedisTemplate.execute(redisScript, keys, args.toArray());
+        log.info("execute result = {}" ,execute);
+        if (execute == 1L) {
             //抢红包成功
             return SUCCESS;
         }
-        if (execute == 2) {
+        if (execute == 2L) {
             //TODO 要保存数据到数据库
             return SUCCESS;
         }
@@ -196,20 +197,22 @@ public class RedPacketServiceImpl implements RedPacketService {
 
     @Override
     public int grabRedPacketRedisMulti(GrabPacketRequest grabPacketRequest) {
-        log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}", grabPacketRequest.toString());
+        log.info("接收到使用redis-multi脚本进行抢红包的请求, grabPacketRequest= {}", grabPacketRequest.toString());
 
         SessionCallback sessionCallback = new SessionCallback() {
             @Override
             public List execute(RedisOperations ops) throws DataAccessException {
                 ops.watch("red_packet_" + grabPacketRequest.getRedPacketId());
-                int _stock = (int) ops.opsForHash().get("red_packet_" + grabPacketRequest.getRedPacketId(), "stock");
+                String _stockResult = (String) ops.opsForHash().get("red_packet_" + grabPacketRequest.getRedPacketId(), "stock");
+                int _stock = Integer.parseInt(_stockResult);
                 if (_stock == -1) {
                     ops.unwatch();
                     return null;
                 } else {
                     _stock = _stock - 1; //减一个红包
                     ops.multi();
-                    ops.opsForHash().put("red_packet_" + grabPacketRequest.getRedPacketId(), "stock", _stock);
+                    ops.opsForHash().put("red_packet_" + grabPacketRequest.getRedPacketId(), "stock", String.valueOf(_stock));
+                    ops.opsForHash().get("red_packet_" + grabPacketRequest.getRedPacketId(), "stock");
                     List list = ops.exec();
                     return list;
                 }
@@ -218,6 +221,10 @@ public class RedPacketServiceImpl implements RedPacketService {
 
         List list = (List) stringRedisTemplate.execute(sessionCallback);
         if(null != list){
+            log.info("list result size = {}" ,list.size());
+            for (Object resultList : list) {
+                log.info(resultList.toString());
+            }
             return SUCCESS;
         }
         return FAILURE;
