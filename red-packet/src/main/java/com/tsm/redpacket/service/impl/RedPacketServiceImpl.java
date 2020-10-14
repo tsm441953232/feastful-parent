@@ -9,7 +9,9 @@ import com.tsm.redpacket.repository.TUserRedPacketRepository;
 import com.tsm.redpacket.service.RedPacketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -19,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.tsm.redpacket.constants.RedisLuaScriptConstants.redPacketDecreaseLuaScript;
@@ -38,6 +39,8 @@ public class RedPacketServiceImpl implements RedPacketService {
 
     private String redisLuaSha = null;
 
+    private String redPacketPrefix = "red_packet_";
+
     @Override
     public void setRedPacket(SetRedPacketRequest setRedPacketRequest) {
         log.info("设置红包开始, setRedPacketRequest = {} ", setRedPacketRequest.toString());
@@ -53,6 +56,8 @@ public class RedPacketServiceImpl implements RedPacketService {
         tRedPacket.setUnitAmount(divideRedPacketUnitAmount(tRedPacket.getAmount(), tRedPacket.getStock()));
         tRedPacket.setVersion(0);
         tRedPacketRepository.save(tRedPacket);
+
+        stringRedisTemplate.opsForHash().put(redPacketPrefix+setRedPacketRequest.getUserId(),"stock",setRedPacketRequest.getTotal());
     }
 
     @Override
@@ -110,11 +115,11 @@ public class RedPacketServiceImpl implements RedPacketService {
                 // 失败返回
                 return FAILURE;
             }*/
-            tRedPacket.setStock(tRedPacket.getStock()-1);
+            tRedPacket.setStock(tRedPacket.getStock() - 1);
             try {
                 tRedPacket = tRedPacketRepository.save(tRedPacket);
-            }catch (ObjectOptimisticLockingFailureException e){
-                log.info("抢红包失败,grabPacketRequest = {}" ,grabPacketRequest);
+            } catch (ObjectOptimisticLockingFailureException e) {
+                log.info("抢红包失败,grabPacketRequest = {}", grabPacketRequest);
                 return FAILURE;
             }
             // 生成抢红包信息
@@ -143,11 +148,11 @@ public class RedPacketServiceImpl implements RedPacketService {
                     // 失败返回
                     continue;
                 }*/
-                tRedPacket.setStock(tRedPacket.getStock()-1);
+                tRedPacket.setStock(tRedPacket.getStock() - 1);
                 try {
                     tRedPacket = tRedPacketRepository.save(tRedPacket);
-                }catch (ObjectOptimisticLockingFailureException e){
-                    log.info("抢红包失败,grabPacketRequest = {}" ,grabPacketRequest);
+                } catch (ObjectOptimisticLockingFailureException e) {
+                    log.info("抢红包失败,grabPacketRequest = {}", grabPacketRequest);
                     return FAILURE;
                 }
 
@@ -167,10 +172,10 @@ public class RedPacketServiceImpl implements RedPacketService {
 
     @Override
     public int grabRedPacketRedisScript(GrabPacketRequest grabPacketRequest) {
-        log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}",grabPacketRequest.toString());
+        log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}", grabPacketRequest.toString());
         // 当前抢红包用户和日期信息
         String userInfo = grabPacketRequest.getUserId() + "_" + System.currentTimeMillis();
-        RedisScript<Integer> redisScript = new DefaultRedisScript<Integer>(redPacketDecreaseLuaScript,Integer.TYPE);
+        RedisScript<Integer> redisScript = new DefaultRedisScript<Integer>(redPacketDecreaseLuaScript, Integer.TYPE);
         List<String> keys = new ArrayList<String>();
         keys.add(grabPacketRequest.getRedPacketId().toString());
 
@@ -178,12 +183,68 @@ public class RedPacketServiceImpl implements RedPacketService {
         args.add(userInfo);
 
         Integer execute = stringRedisTemplate.execute(redisScript, keys, args);
-        if(execute == 2){
+        if (execute == 1) {
+            //抢红包成功
+            return SUCCESS;
+        }
+        if (execute == 2) {
             //TODO 要保存数据到数据库
             return SUCCESS;
         }
         return FAILURE;
     }
+
+    @Override
+    public int grabRedPacketRedisMulti(GrabPacketRequest grabPacketRequest) {
+        log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}", grabPacketRequest.toString());
+
+        SessionCallback sessionCallback = new SessionCallback() {
+            @Override
+            public List execute(RedisOperations ops) throws DataAccessException {
+                ops.watch("red_packet_" + grabPacketRequest.getRedPacketId());
+                int _stock = (int) ops.opsForHash().get("red_packet_" + grabPacketRequest.getRedPacketId(), "stock");
+                if (_stock == -1) {
+                    ops.unwatch();
+                    return null;
+                } else {
+                    _stock = _stock - 1; //减一个红包
+                    ops.multi();
+                    ops.opsForHash().put("red_packet_" + grabPacketRequest.getRedPacketId(), "stock", _stock);
+                    List list = ops.exec();
+                    return list;
+                }
+            }
+        };
+
+        List list = (List) stringRedisTemplate.execute(sessionCallback);
+        if(null != list){
+            return SUCCESS;
+        }
+        return FAILURE;
+    }
+
+    //TODO lambda表达式需强化练习
+/*    @Override
+    public int grabRedPacketRedisMulti(GrabPacketRequest grabPacketRequest) {
+        log.info("接收到使用redis-script脚本进行抢红包的请求, grabPacketRequest= {}",grabPacketRequest.toString());
+
+        SessionCallback sessionCallback = (SessionCallback)(RedisOperations ops)-> {
+            ops.watch("red_packet_" + grabPacketRequest.getRedPacketId());
+            int _stock = (int) ops.opsForHash().get("red_packet_" + grabPacketRequest.getRedPacketId(), "stock");
+            if (_stock == -1) {
+                ops.unwatch();
+                return null;
+            } else {
+                _stock = _stock - 1; //减一个红包
+                ops.multi();
+                ops.opsForHash().put("red_packet_" + grabPacketRequest.getRedPacketId(), "stock", _stock);
+                ops.exec();
+            }
+            return null;
+        };
+
+        return FAILURE;
+    }*/
 
 
     private Integer divideRedPacketStock(BigDecimal amount, Integer total) {

@@ -93,4 +93,36 @@ public class RedPacketController {
         return ResponseDto.ok(retMap);
     }
 
+    @ApiOperation("抢红包-redis-lua脚本")
+    @GetMapping("grabRedPacketRedisLuaScript")
+    ResponseDto<Map<String, Object>> grabRedPacketRedisLuaScript(@RequestParam(value = "redPacketId") Integer redPacketId ,
+                                                                      @RequestParam(value = "userId") Integer userId){
+        GrabPacketRequest grabPacketRequest = new GrabPacketRequest();
+        grabPacketRequest.setRedPacketId(redPacketId);
+        grabPacketRequest.setUserId(userId);
+        log.info("接收到抢红包-redis-lua的请求, 请求体为 setRedPacketRequest = {}",grabPacketRequest.toString());
+        int result = redPacketService.grabRedPacketRedisScript(grabPacketRequest);
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        boolean flag = result == 0;
+        retMap.put("success", flag);
+        retMap.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return ResponseDto.ok(retMap);
+    }
+
+    @ApiOperation("抢红包-redis-采用事务")
+    @GetMapping("grabRedPacketRedisMultiOperation")
+    ResponseDto<Map<String, Object>> grabRedPacketRedisMultiOperation(@RequestParam(value = "redPacketId") Integer redPacketId ,
+                                                                 @RequestParam(value = "userId") Integer userId){
+        GrabPacketRequest grabPacketRequest = new GrabPacketRequest();
+        grabPacketRequest.setRedPacketId(redPacketId);
+        grabPacketRequest.setUserId(userId);
+        log.info("接收到抢红包-redis-采用事务的请求, 请求体为 setRedPacketRequest = {}",grabPacketRequest.toString());
+        int result = redPacketService.grabRedPacketRedisMulti(grabPacketRequest);
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        boolean flag = result == 0;
+        retMap.put("success", flag);
+        retMap.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return ResponseDto.ok(retMap);
+    }
+
 }

@@ -20,4 +20,7 @@ public interface RedPacketService {
 
     //redis-script脚本进行抢红包操作
     int grabRedPacketRedisScript(GrabPacketRequest grabPacketRequest);
+
+    //redis-watch-multi事务进行抢红包操作
+    int grabRedPacketRedisMulti(GrabPacketRequest grabPacketRequest);
 }
