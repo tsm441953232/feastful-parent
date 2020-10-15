@@ -57,7 +57,7 @@ public class RedPacketServiceImpl implements RedPacketService {
         tRedPacket.setVersion(0);
         tRedPacketRepository.save(tRedPacket);
 
-        stringRedisTemplate.opsForHash().put(redPacketPrefix+setRedPacketRequest.getUserId(),"stock",setRedPacketRequest.getTotal().toString());
+        stringRedisTemplate.opsForHash().put(redPacketPrefix + setRedPacketRequest.getUserId(), "stock", setRedPacketRequest.getTotal().toString());
     }
 
     @Override
@@ -183,7 +183,7 @@ public class RedPacketServiceImpl implements RedPacketService {
         args.add(userInfo);
 
         Long execute = stringRedisTemplate.execute(redisScript, keys, args.toArray());
-        log.info("execute result = {}" ,execute);
+        log.info("execute result = {}", execute);
         if (execute == 1L) {
             //抢红包成功
             return SUCCESS;
@@ -220,8 +220,8 @@ public class RedPacketServiceImpl implements RedPacketService {
         };
 
         List list = (List) stringRedisTemplate.execute(sessionCallback);
-        if(null != list){
-            log.info("list result size = {}" ,list.size());
+        if (null != list) {
+            log.info("list result size = {}", list.size());
             for (Object resultList : list) {
                 log.info(resultList.toString());
             }
