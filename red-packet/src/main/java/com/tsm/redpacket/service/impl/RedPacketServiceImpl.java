@@ -205,7 +205,7 @@ public class RedPacketServiceImpl implements RedPacketService {
                 ops.watch("red_packet_" + grabPacketRequest.getRedPacketId());
                 String _stockResult = (String) ops.opsForHash().get("red_packet_" + grabPacketRequest.getRedPacketId(), "stock");
                 int _stock = Integer.parseInt(_stockResult);
-                if (_stock == -1) {
+                if (_stock == 0) {
                     ops.unwatch();
                     return null;
                 } else {
