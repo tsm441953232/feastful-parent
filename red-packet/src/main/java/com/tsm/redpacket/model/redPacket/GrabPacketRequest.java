@@ -3,8 +3,6 @@ package com.tsm.redpacket.model.redPacket;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 public class GrabPacketRequest {
     @ApiModelProperty(value = "客户ID")
