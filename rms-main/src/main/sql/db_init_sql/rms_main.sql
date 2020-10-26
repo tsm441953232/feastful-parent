@@ -1,6 +1,6 @@
 create table rms_config_route
 (
-   pk_id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键' ,
+   id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键' ,
    business_type       varchar(64)  NOT NULL COMMENT '物理主键',
    route_code           varchar(48) COMMENT '物理主键',
    route_name           varchar(48) COMMENT '物理主键',
@@ -22,7 +22,7 @@ insert into rms_config_route values (NULL, 'COMMON', 'JDE-ROUTE1', '产品路由
 
 create table rms_thread_pool_config
 (
-  pk_id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
+  id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
   business_type      varchar(64) NOT NULL COMMENT '业务类型',
    pool_id              varchar(64) COMMENT '线程池id',
    pool_name            varchar(64) COMMENT '线程池名称',
@@ -46,7 +46,7 @@ insert into rms_thread_pool_config values (null, 'PRD-JDE', 'ThreadPool-05', '�
 
 create table rms_policy_selection
 (
-  pk_id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
+  id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
   business_type      varchar(64) NOT NULL COMMENT '业务类型',
    node_code            varchar(48) not null COMMENT '环节编码',
    rule_set_code        varchar(64) not null COMMENT '规则集编码',
@@ -110,7 +110,7 @@ INSERT INTO `rms_policy_selection` VALUES (null, 'PRD-JDE', 'testNode', 'testRul
 
 create table rms_policy_actuator
 (
-   pk_id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
+   id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
    business_type      varchar(64) NOT NULL COMMENT '业务类型',
    rule_set_code        varchar(64) COMMENT '策略集编码',
    service_id           varchar(64) not null COMMENT '服务id',
@@ -268,7 +268,7 @@ INSERT INTO `rms_policy_actuator` VALUES (null, 'PRD-JDE', 'testRuleSet', 'CallE
 
 create table rms_service_config
 (
-    pk_id  bigint unsigned NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
+    id  bigint unsigned NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
    business_type      varchar(64) NOT NULL COMMENT '业务类型',
    service_id varchar(64) COMMENT '服务id',
    service_name         varchar(32) COMMENT '服务名称',
@@ -338,7 +338,7 @@ INSERT INTO `rms_service_config` VALUES (null, 'PRD-JDE', 'ContactTempHandleServ
 
 create table rms_policy_config
 (
-  pk_id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
+  id BIGINT unsigned  NOT NULL  AUTO_INCREMENT COMMENT '物理主键',
   business_type      varchar(64) NOT NULL COMMENT '业务类型',
    rule_set_code        varchar(64) COMMENT '策略集编码',
    rule_set_name        varchar(128) COMMENT '策略集名称',
