@@ -3,6 +3,6 @@ package com.tsm.feastful.rmsmain.model;
 import lombok.Data;
 
 @Data
-public class RiskInvokeEntity {
-    private RiskHeader riskHeader;
+public class RiskInvokeResponse {
+    private RiskHeader header;
 }

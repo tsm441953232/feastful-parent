@@ -1,7 +1,7 @@
 package com.tsm.feastful.rmsmain.controller;
 
 import com.tsm.feastful.rmsmain.common.ResponseDto;
-import com.tsm.feastful.rmsmain.model.RiskInvokeEntity;
+import com.tsm.feastful.rmsmain.model.RiskInvokeRequest;
 import com.tsm.feastful.rmsmain.service.RmsService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class RmsController {
     private RmsService rmsService;
 
     @RequestMapping(value = "/invoke")
-    public ResponseDto invoke(RiskInvokeEntity riskInvokeEntity){
+    public ResponseDto invoke(RiskInvokeRequest riskInvokeRequest){
         return null;
     }
 }
