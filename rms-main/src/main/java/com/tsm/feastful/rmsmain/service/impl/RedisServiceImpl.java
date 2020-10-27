@@ -5,15 +5,18 @@ import com.tsm.feastful.rmsmain.service.RedisService;
 import com.tsm.feastful.rmsmain.utils.JacksonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+@Service
 public class RedisServiceImpl implements RedisService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     private static final long defaultTime = 1000 * 60 * 10;
 
+    @Override
     public void set(String key, Object value) throws JsonProcessingException {
         this.set(key,value,defaultTime);
     }
@@ -24,7 +27,8 @@ public class RedisServiceImpl implements RedisService {
      * @param value  缓存的对象
      * @param milliSeconds  有效期
      */
-    public void set(String key,Object value, long milliSeconds) throws JsonProcessingException {
+    @Override
+    public void set(String key, Object value, long milliSeconds) throws JsonProcessingException {
         stringRedisTemplate.opsForValue().set(key,getStrValue(value),milliSeconds, TimeUnit.MILLISECONDS);
     }
 
@@ -34,9 +38,28 @@ public class RedisServiceImpl implements RedisService {
         if (value instanceof String) {
             redisValue = value.toString();
         } else {
-            redisValue = JacksonUtils.ObjectToJson(value);
+            redisValue = JacksonUtils.objectToJson(value);
         }
         return redisValue;
+    }
+
+    @Override
+    public <T> T get(String key, Class<T> tClass) throws Exception {
+        Object result = get(key);
+        if (result == null) {
+            return null;
+        }
+
+        if (tClass.equals(String.class)) {
+            return (T) result;
+        }
+
+        return JacksonUtils.json2pojo(result.toString(),tClass);
+    }
+
+    @Override
+    public Object get(String key) {
+        return stringRedisTemplate.opsForValue().get(key);
     }
 
 }

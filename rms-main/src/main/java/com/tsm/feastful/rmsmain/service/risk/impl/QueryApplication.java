@@ -10,11 +10,12 @@ import org.springframework.stereotype.Service;
 public class QueryApplication implements RiskBaseService {
     @Override
     public Boolean collectData(RiskInvokeRequest request) {
+        log.info("QueryApplicationService start, request = {}" ,request.toString());
         return null;
     }
 
     @Override
     public Boolean existData(RiskInvokeRequest request) {
-        return null;
+        return true;
     }
 }

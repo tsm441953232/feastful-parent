@@ -23,7 +23,6 @@ public class RmsRouteServiceImpl implements RmsRouteService {
         if(Objects.nonNull(rmsConfigRoute)){
             return (String) JavaScriptUtils.javaScriptExecute(rmsConfigRoute.getRouteRule(),"process_route",null);
         }
-
         return null;
     }
 }
