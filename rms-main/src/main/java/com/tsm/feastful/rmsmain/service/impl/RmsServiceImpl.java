@@ -21,8 +21,8 @@ public class RmsServiceImpl implements RmsService {
     public RiskInvokeResponse invoke(RiskInvokeRequest riskInvokeRequest) {
         log.info("接收到请求风控系统的请求, riskInvokeRequest = {}", riskInvokeRequest.toString());
 
-        String businessType = rmsRouteService.getRmsRoute("JDE-ROUTE1");//获取业务类型
-        RiskInvokeResponse riskInvokeResponse = rmsDispatcher.start(riskInvokeRequest,businessType);
+        String businessType = rmsRouteService.getRmsRoute("JDE-ROUTE1");//根据路由编码获取业务类型
+        RiskInvokeResponse riskInvokeResponse = rmsDispatcher.start(riskInvokeRequest,businessType);//开启执行方法
         return riskInvokeResponse;
     }
 }
