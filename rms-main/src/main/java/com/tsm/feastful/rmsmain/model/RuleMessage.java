@@ -13,6 +13,8 @@ import java.io.Serializable;
 public class RuleMessage implements Serializable {
     @ApiModelProperty("访问头信息")
     private RiskHeader riskHeader;
+    @ApiModelProperty("规则集")
+    private String ruleSetCode;
     @ApiModelProperty("申请信息")
     private ApplyInfo applyInfo;
     @ApiModelProperty("自有黑名单")
