@@ -1,12 +1,11 @@
 package com.tsm.feastful.rmsmain.repository;
 
-import com.tsm.feastful.rmsmain.entity.RmsPolicySelection;
+import com.tsm.feastful.rmsmain.entity.RmsPolicyActuator;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface RmsPolicySelectionRepo extends JpaRepository<RmsPolicySelection, Long> {
+public interface RmsPolicyActuatorRepo extends JpaRepository<RmsPolicyActuator, Long> {
 
-    List<RmsPolicySelection> findByNodeCodeAndBusinessTypeOrderBySequenceAsc(String nodeCode,String businessType);
-
+    List<RmsPolicyActuator> findByRuleSetCode(String ruleSetCode);
 }

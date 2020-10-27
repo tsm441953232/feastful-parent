@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class RiskInvokeResponse {
     private RiskHeader header;
+    private RiskDecision riskDecision;
 }

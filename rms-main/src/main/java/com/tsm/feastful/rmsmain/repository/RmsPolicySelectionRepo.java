@@ -1,9 +1,12 @@
 package com.tsm.feastful.rmsmain.repository;
 
-import com.tsm.feastful.rmsmain.entity.RmsConfigRoute;
+import com.tsm.feastful.rmsmain.entity.RmsPolicySelection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RmsConfigRouteRepo extends JpaRepository<RmsConfigRoute,Long> {
+import java.util.List;
 
-    RmsConfigRoute getByRRmsConfigRouteRepoouteCode(String routeCode);
+public interface RmsPolicySelectionRepo extends JpaRepository<RmsPolicySelection, Long> {
+
+    List<RmsPolicySelection> findByNodeCodeAndBusinessTypeOrderBySequenceAsc(String nodeCode,String businessType);
+
 }

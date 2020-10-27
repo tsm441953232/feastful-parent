@@ -9,17 +9,15 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
-@Table(name = "rms_config_route")
-public class RmsConfigRoute {
+@Table(name = "rms_policy_selection")
+public class RmsPolicySelection {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String businessType;//业务类型
-    private String routeCode;//
-    private String routeName;//
-    private String routeRule;//
-    @Column(name = "status")
-    private String routeStatus;//状态 DBA建议不要用mysql关键字
+    private String nodeCode;//
+    private String ruleSetCode;//
+    private String sequence;//
     private String createdBy;//创建人
     @CreationTimestamp
     private Timestamp dateCreate;//创建时间

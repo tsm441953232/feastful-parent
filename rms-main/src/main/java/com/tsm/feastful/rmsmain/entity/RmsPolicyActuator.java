@@ -9,15 +9,15 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
-@Table(name = "rms_policy_actuaor")
-public class RmsPolicyActuaor {
+@Table(name = "rms_policy_actuator")
+public class RmsPolicyActuator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String businessType;//业务类型
-    private String nodeCode;//
     private String ruleSetCode;//
-    private String sequence;//
+    private String serviceId;//
+    private String poolId;//
     private String createdBy;//创建人
     @CreationTimestamp
     private Timestamp dateCreate;//创建时间
