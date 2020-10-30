@@ -1,16 +1,17 @@
 package com.tsm.feastful.rmsmain.service.risk.impl;
 
-import com.tsm.feastful.rmsmain.model.RiskInvokeRequest;
+import com.tsm.feastful.rmsmain.model.RiskHeader;
 import com.tsm.feastful.rmsmain.service.risk.RiskBaseService;
 
 public class QueryInnerBlackListByPhoneService implements RiskBaseService {
+
     @Override
-    public Boolean collectData(RiskInvokeRequest request) {
+    public Boolean collectData(RiskHeader riskHeader) {
         return null;
     }
 
     @Override
-    public Boolean existData(RiskInvokeRequest request) {
+    public Boolean existData(RiskHeader riskHeader) {
         return null;
     }
 }

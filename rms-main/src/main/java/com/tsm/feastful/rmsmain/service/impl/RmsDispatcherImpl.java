@@ -3,6 +3,7 @@ package com.tsm.feastful.rmsmain.service.impl;
 import com.tsm.feastful.rmsmain.entity.RmsPolicyActuator;
 import com.tsm.feastful.rmsmain.entity.RmsPolicySelection;
 import com.tsm.feastful.rmsmain.helper.RmsRuleMessageHelper;
+import com.tsm.feastful.rmsmain.model.RiskHeader;
 import com.tsm.feastful.rmsmain.model.RiskInvokeRequest;
 import com.tsm.feastful.rmsmain.model.RiskInvokeResponse;
 import com.tsm.feastful.rmsmain.repository.RmsPolicyActuatorRepo;
@@ -40,21 +41,21 @@ public class RmsDispatcherImpl implements RmsDispatcher {
     }
 
     public void recursiveCall(RiskInvokeRequest request ,List<RmsPolicySelection> rmsPolicySelectionList) throws Exception {
+        RiskHeader riskHeader = request.getRiskHeader();
         for (RmsPolicySelection rmsPolicySelection : rmsPolicySelectionList) {
-            log.info("当前执行的执行的风控规则集为 ruleSetCode ={} ", rmsPolicySelection.getNodeCode());
-            RmsRuleMessageHelper.createRuleMessage(request.getRiskHeader(),rmsPolicySelection); //取出该环节所使用的RmsRuleMessage
-            List<RmsPolicyActuator> rmsPolicyActuatorList = rmsPolicyActuatorRepo.findByRuleSetCode(rmsPolicySelection.getRuleSetCode());
-            executeRmsPolicyActuator(request, rmsPolicySelection);
+            log.info("当前执行的执行的风控规则集为 ruleSetCode ={} ", rmsPolicySelection.getRuleSetCode());
+            RmsRuleMessageHelper.createRuleMessage(riskHeader,rmsPolicySelection); //取出该环节所使用的RmsRuleMessage
+            executeRmsPolicyActuator(riskHeader, rmsPolicySelection);
         }
     }
 
-    public void executeRmsPolicyActuator(RiskInvokeRequest riskInvokeRequest, RmsPolicySelection rmsPolicySelection) {
+    public void executeRmsPolicyActuator(RiskHeader riskHeader, RmsPolicySelection rmsPolicySelection) {
         List<RmsPolicyActuator> rmsPolicyActuatorList = rmsPolicyActuatorRepo.findByRuleSetCode(rmsPolicySelection.getRuleSetCode());
         for (RmsPolicyActuator rmsPolicyActuator : rmsPolicyActuatorList) {
             String serviceId = rmsPolicyActuator.getServiceId();
             log.info("serviceId = {}", serviceId);
             RiskBaseService riskBaseService = (RiskBaseService) applicationContext.getBean(serviceId);
-            riskBaseService.collectData(riskInvokeRequest);
+            riskBaseService.collectData(riskHeader);
         }
     }
 }

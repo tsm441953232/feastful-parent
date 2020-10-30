@@ -18,7 +18,7 @@ public class RmsServiceImpl implements RmsService {
     private RmsRouteService rmsRouteService;
 
     @Override
-    public RiskInvokeResponse invoke(RiskInvokeRequest riskInvokeRequest) {
+    public RiskInvokeResponse invoke(RiskInvokeRequest riskInvokeRequest) throws Exception {
         log.info("接收到请求风控系统的请求, riskInvokeRequest = {}", riskInvokeRequest.toString());
 
         String businessType = rmsRouteService.getRmsRoute("JDE-ROUTE1");//根据路由编码获取业务类型
